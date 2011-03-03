@@ -20,33 +20,23 @@
 			_c = $.extend({
 				posFix: 0,
 				fade: true // false => show
-			}, options);
+			}, options),
+			_imgLine = [];
+			
+		// offset().topを入れていって、一番上から順番に反応するようにする
+		// 常に判定するのは一番上の画像（数値）のみなので
+		// 最小限になるんじゃないですかね
+		for ( var i=0; i<_this.length; i++ ) {
+			_imgLine.push(_this[i].offset().top);
+		}
 			
 		$(window)
 			.resize(function() {
 				_clientHeight = $("html").attr("clientHeight");
 			})
 			.scroll(function() {
-				_scrollPos.y = document.body.scrollTop || document.documentElement.scrollTop;
-				_line = _clientHeight + _scrollPos.y;
+				
 			});
-			
-		return this.each(function() {
-		
-			var __this = this,
-				__imgOffset = __this.offset();
-			
-			if ( __imgOffset.top > _clientHeight ) {
-				__this.css("opacity", 0);
-			}			
-			
-			$(window).scroll(function() {
-				if ( __imgOffset.top <= _line ) {
-					if ( _c.fade ) __this.fadeIn();
-					else __this.show();
-				}
-			});
-		});
 	}
 
 })(jQuery);
