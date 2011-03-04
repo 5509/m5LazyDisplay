@@ -20,8 +20,7 @@
 				duration: 400
 			}, options),
 			_imgObjs = [],
-			_currentImg = 0,
-			_displayMethod = _c.fade ? "fadeIn" : "show";
+			_currentImg = 0;
 			
 		for ( var i=0; i<_this.length; i++ ) {
 			_imgObjs[i] = {};
@@ -51,9 +50,13 @@
 					return false;
 				}
 				_scrollPos = document.body.scrollTop || document.documentElement.scrollTop;
-				if ( _imgObjs[_currentImg].y <= (_scrollPos + _c.posFix + _clientHeight) ) {
+				while ( _imgObjs[_currentImg].y <= (_scrollPos + _c.posFix + _clientHeight) ) {
 					_imgObjs[_currentImg].obj.fadeTo(_c.duration, 1);
 					_currentImg++;
+					if ( _currentImg === _thisLen ) {
+						$(window).unbind("scroll.LazyDislayscroll");
+						break;
+					}
 				}
 			});
 	}
