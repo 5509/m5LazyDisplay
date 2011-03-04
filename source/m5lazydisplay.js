@@ -11,31 +11,50 @@
 
 	$.fn.m5LazyDisplay = function(options) {
 		var _this = this,
-			_scrollPos = {
-				y: document.body.scrollTop || document.documentElement.scrollTop
-				// とりあえずyのみでいいか
-			},
-			_clientHeight = $("html").attr("clientHeight"),
+			_thisLen = _this.length,
+			_scrollPos = document.body.scrollTop || document.documentElement.scrollTop,
+			_clientHeight = document.body.clientHeight || document.documentElement.clientHeight,
 			_line = _clientHeight,
 			_c = $.extend({
 				posFix: 0,
-				fade: true // false => show
+				duration: 400
 			}, options),
-			_imgLine = [];
+			_imgObjs = [],
+			_currentImg = 0,
+			_displayMethod = _c.fade ? "fadeIn" : "show";
 			
-		// offset().topを入れていって、一番上から順番に反応するようにする
-		// 常に判定するのは一番上の画像（数値）のみなので
-		// 最小限になるんじゃないですかね
 		for ( var i=0; i<_this.length; i++ ) {
-			_imgLine.push(_this[i].offset().top);
-		}
+			_imgObjs[i] = {};
+			_imgObjs[i].y = $(_this[i]).offset().top;
+			_imgObjs[i].obj = $(_this[i]);
 			
+			if ( (_scrollPos + _clientHeight) < _imgObjs[i].y ) {
+				_imgObjs[i].obj.css("opacity", 0);
+			} else {
+				_currentImg++;
+			}
+		}
+		
+		_imgObjs.sort(
+			function(a, b) {
+				return a.y - b.y;
+			}
+		);
+		
 		$(window)
 			.resize(function() {
-				_clientHeight = $("html").attr("clientHeight");
+				_clientHeight = document.body.clientHeight || document.documentElement.clientHeight;
 			})
-			.scroll(function() {
-				
+			.bind("scroll.LazyDisplayScroll", function() {
+				if ( _currentImg === _thisLen ) {
+					$(window).unbind("scroll.LazyDisplayScroll");
+					return false;
+				}
+				_scrollPos = document.body.scrollTop || document.documentElement.scrollTop;
+				if ( _imgObjs[_currentImg].y <= (_scrollPos + _c.posFix + _clientHeight) ) {
+					_imgObjs[_currentImg].obj.fadeTo(_c.duration, 1);
+					_currentImg++;
+				}
 			});
 	}
 
